@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AutoPilot SRE</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial,sans-serif;
+        }
+
+        body{
+            background:#f1f5f9;
+        }
+
+        nav{
+            background:#0f172a;
+            color:white;
+            padding:20px 40px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            position:sticky;
+            top:0;
+        }
+
+        nav h1{
+            font-size:38px;
+        }
+
+        nav ul{
+            display:flex;
+            gap:15px;
+            list-style:none;
+        }
+
+        nav button{
+            background:#2563eb;
+            color:white;
+            border:none;
+            padding:12px 20px;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        nav button:hover{
+            background:#1d4ed8;
+        }
+
+        .hero{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:60px;
+            gap:40px;
+            flex-wrap:wrap;
+        }
+
+        .hero-left{
+            flex:1;
+            min-width:300px;
+        }
+
+        .hero-left h2{
+            font-size:70px;
+            color:#0f172a;
+            margin-bottom:20px;
+        }
+
+        .hero-left p{
+            font-size:24px;
+            color:#475569;
+            line-height:1.6;
+            margin-bottom:30px;
+        }
+
+        .hero-left button{
+            background:#22c55e;
+            color:white;
+            border:none;
+            padding:18px 30px;
+            border-radius:12px;
+            font-size:20px;
+            cursor:pointer;
+        }
+
+        .hero-left button:hover{
+            background:#16a34a;
+        }
+
+        .status-card{
+            background:#0f172a;
+            color:white;
+            width:420px;
+            padding:35px;
+            border-radius:20px;
+            box-shadow:0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .status-card h3{
+            font-size:42px;
+            margin-bottom:25px;
+        }
+
+        .status-item{
+            font-size:28px;
+            margin-bottom:20px;
+        }
+
+        .healthy{
+            background:#22c55e;
+            display:inline-block;
+            padding:12px 25px;
+            border-radius:20px;
+            font-size:20px;
+            margin-top:15px;
+        }
+
+        .stats{
+            display:flex;
+            justify-content:center;
+            gap:30px;
+            padding:40px;
+            flex-wrap:wrap;
+        }
+
+        .stat-box{
+            background:white;
+            width:320px;
+            padding:40px;
+            border-radius:20px;
+            text-align:center;
+            box-shadow:0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-box h4{
+            font-size:30px;
+            color:#64748b;
+            margin-bottom:20px;
+        }
+
+        .stat-box p{
+            font-size:60px;
+            color:#2563eb;
+            font-weight:bold;
+        }
+
+        .incidents{
+            padding:50px;
+        }
+
+        .incidents h2{
+            font-size:45px;
+            margin-bottom:25px;
+            color:#0f172a;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            border-radius:15px;
+            overflow:hidden;
+            box-shadow:0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        table th{
+            background:#2563eb;
+            color:white;
+            padding:18px;
+            text-align:left;
+            font-size:20px;
+        }
+
+        table td{
+            padding:18px;
+            border-bottom:1px solid #ddd;
+            font-size:18px;
+        }
+
+        .footer{
+            background:#0f172a;
+            color:white;
+            text-align:center;
+            padding:25px;
+            margin-top:50px;
+            font-size:18px;
+        }
+
+        @media(max-width:900px){
+
+            .hero{
+                flex-direction:column;
+            }
+
+            .hero-left h2{
+                font-size:50px;
+            }
+
+            .status-card{
+                width:100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<nav>
+
+    <h1>AutoPilot SRE</h1>
+
+    <ul>
+        <li><button onclick="showDashboard()">Dashboard</button></li>
+        <li><button onclick="showIncidents()">Incidents</button></li>
+        <li><button onclick="showMetrics()">Metrics</button></li>
+        <li><button onclick="logout()">Logout</button></li>
+    </ul>
+
+</nav>
+
+<section class="hero">
+
+    <div class="hero-left">
+
+        <h2>
+            AI Powered Self-Healing Cloud Infrastructure
+        </h2>
+
+        <p>
+            Monitor incidents, analyze cloud metrics,
+            automate recovery and manage DevOps
+            infrastructure intelligently using AutoPilot SRE.
+        </p>
+
+        <button onclick="createIncident()">
+            Create Incident
+        </button>
+
+    </div>
+
+    <div class="status-card">
+
+        <h3>System Status</h3>
+
+        <div class="status-item">
+            CPU Usage :
+            <span id="cpu">Loading...</span>
+        </div>
+
+        <div class="status-item">
+            Memory Usage :
+            <span id="memory">Loading...</span>
+        </div>
+
+        <div class="status-item">
+            Pods Running :
+            <span id="pods">Loading...</span>
+        </div>
+
+        <div class="healthy">
+            Healthy
+        </div>
+
+    </div>
+
+</section>
+
+<section class="stats">
+
+    <div class="stat-box">
+        <h4>Total Incidents</h4>
+        <p id="total">24</p>
+    </div>
+
+    <div class="stat-box">
+        <h4>Resolved</h4>
+        <p id="resolved">19</p>
+    </div>
+
+    <div class="stat-box">
+        <h4>Critical Alerts</h4>
+        <p id="critical">3</p>
+    </div>
+
+</section>
+
+<section class="incidents">
+
+    <h2>Recent Incidents</h2>
+
+    <table>
+
+        <thead>
+
+        <tr>
+            <th>ID</th>
+            <th>Service</th>
+            <th>Severity</th>
+            <th>Status</th>
+        </tr>
+
+        </thead>
+
+        <tbody id="incidentTable">
+
+        </tbody>
+
+    </table>
+
+</section>
+
+<div class="footer">
+    AutoPilot SRE © 2026 | AI Powered DevOps Monitoring Platform
+</div>
+
+<script>
+
+    const incidents = [
+
+        {
+            id:1,
+            service:'Kubernetes Cluster',
+            severity:'High',
+            status:'Investigating'
+        },
+
+        {
+            id:2,
+            service:'API Gateway',
+            severity:'Critical',
+            status:'Resolved'
+        },
+
+        {
+            id:3,
+            service:'Database Server',
+            severity:'Medium',
+            status:'Monitoring'
+        },
+
+        {
+            id:4,
+            service:'Authentication Service',
+            severity:'Low',
+            status:'Resolved'
+        }
+
+    ];
+
+    const table = document.getElementById('incidentTable');
+
+    incidents.forEach((incident)=>{
+
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${incident.id}</td>
+            <td>${incident.service}</td>
+            <td>${incident.severity}</td>
+            <td>${incident.status}</td>
+        `;
+
+        table.appendChild(row);
+
+    });
+
+    function createIncident(){
+
+        alert('Incident Created Successfully 🚀');
+
+    }
+
+    function logout(){
+
+        alert('Logged Out Successfully');
+
+        window.location.reload();
+
+    }
+
+    function showDashboard(){
+
+        window.scrollTo({
+            top:0,
+            behavior:'smooth'
+        });
+
+    }
+
+    function showIncidents(){
+
+        document.querySelector('.incidents')
+        .scrollIntoView({
+            behavior:'smooth'
+        });
+
+    }
+
+    function showMetrics(){
+
+        document.querySelector('.status-card')
+        .scrollIntoView({
+            behavior:'smooth'
+        });
+
+    }
+
+    async function loadMetrics(){
+
+        try{
+
+            const response = await fetch(
+                "http://localhost:9091/api/metrics/system?instanceId=i-0103e5e46048e5721"
+            );
+
+            const data = await response.json();
+
+            document.getElementById('cpu').innerText =
+                data.cpuUsage.toFixed(2) + '%';
+
+            // Demo values for now
+            document.getElementById('memory').innerText =
+                Math.floor(Math.random()*100) + '%';
+
+            document.getElementById('pods').innerText =
+                Math.floor(Math.random()*20);
+
+        }
+
+        catch(error){
+
+            console.log(error);
+
+            document.getElementById('cpu').innerText =
+                'Backend Offline';
+
+        }
+
+    }
+
+    loadMetrics();
+
+    setInterval(loadMetrics,5000);
+
+</script>
+
+</body>
+</html>

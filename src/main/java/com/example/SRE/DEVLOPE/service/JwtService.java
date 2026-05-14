@@ -1,0 +1,96 @@
+package com.example.SRE.DEVLOPE.service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import io.jsonwebtoken.security.Keys;
+
+import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
+
+import java.util.Date;
+
+@Service
+public class JwtService {
+
+    // MUST be minimum 32 characters
+    private static final String SECRET_KEY =
+            "autopilotsresecretkeyforjwtsecurity123456";
+
+    private final SecretKey key =
+            Keys.hmacShaKeyFor(
+                    SECRET_KEY.getBytes()
+            );
+
+    // Generate JWT token
+    public String generateToken(
+            String email
+    ) {
+
+        return Jwts.builder()
+
+                .setSubject(email)
+
+                .setIssuedAt(
+                        new Date()
+                )
+
+                .setExpiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + 1000 * 60 * 60 * 24
+                        )
+                )
+
+                .signWith(
+                        key,
+                        SignatureAlgorithm.HS256
+                )
+
+                .compact();
+    }
+
+    // Extract email from token
+    public String extractUsername(
+            String token
+    ) {
+
+        return extractAllClaims(token)
+                .getSubject();
+    }
+
+    // Validate token
+    public boolean isTokenValid(
+            String token
+    ) {
+
+        try {
+
+            extractAllClaims(token);
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    // Extract all claims
+    private Claims extractAllClaims(
+            String token
+    ) {
+
+        return Jwts.parserBuilder()
+
+                .setSigningKey(key)
+
+                .build()
+
+                .parseClaimsJws(token)
+
+                .getBody();
+    }
+}
