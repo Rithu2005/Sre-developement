@@ -1,456 +1,759 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>AutoPilot SRE</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloud Incident AutoPilot</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-
         *{
             margin:0;
             padding:0;
             box-sizing:border-box;
-            font-family:Arial,sans-serif;
         }
 
         body{
-            background:#f1f5f9;
+            font-family:'Inter',sans-serif;
+            background:#07111f;
+            color:white;
+            overflow-x:hidden;
         }
 
-        nav{
-            background:#0f172a;
-            color:white;
-            padding:20px 40px;
+        /* BACKGROUND */
+        body::before{
+            content:'';
+            position:fixed;
+            width:700px;
+            height:700px;
+            background:radial-gradient(circle,#1b4dff25 0%,transparent 70%);
+            top:-250px;
+            right:-200px;
+            z-index:-1;
+        }
+
+        body::after{
+            content:'';
+            position:fixed;
+            width:500px;
+            height:500px;
+            background:radial-gradient(circle,#00d9ff15 0%,transparent 70%);
+            bottom:-200px;
+            left:-150px;
+            z-index:-1;
+        }
+
+        /* LAYOUT */
+        .container{
             display:flex;
-            justify-content:space-between;
+            min-height:100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar{
+            width:270px;
+            background:rgba(8,16,32,0.95);
+            border-right:1px solid rgba(255,255,255,0.06);
+            padding:30px 22px;
+            position:fixed;
+            height:100vh;
+            backdrop-filter:blur(18px);
+        }
+
+        .logo{
+            display:flex;
             align-items:center;
-            position:sticky;
-            top:0;
+            gap:14px;
+            margin-bottom:55px;
         }
 
-        nav h1{
-            font-size:38px;
+        .logo-icon{
+            font-size:34px;
         }
 
-        nav ul{
+        .logo h1{
+            font-size:40px;
+            font-weight:800;
+            background:linear-gradient(90deg,#4facfe,#00f2fe);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+
+        .menu{
             display:flex;
-            gap:15px;
-            list-style:none;
+            flex-direction:column;
+            gap:14px;
         }
 
-        nav button{
-            background:#2563eb;
-            color:white;
-            border:none;
-            padding:12px 20px;
-            border-radius:10px;
+        .menu-item{
+            display:flex;
+            align-items:center;
+            gap:14px;
+            padding:16px 18px;
+            border-radius:18px;
+            color:#b9c4d6;
+            font-size:17px;
+            transition:0.3s;
             cursor:pointer;
-            font-size:16px;
         }
 
-        nav button:hover{
-            background:#1d4ed8;
+        .menu-item:hover{
+            background:rgba(255,255,255,0.06);
+            color:white;
+            transform:translateX(4px);
         }
 
-        .hero{
+        .menu-item.active{
+            background:linear-gradient(90deg,#246bfd,#00c6ff);
+            color:white;
+            box-shadow:0 10px 25px rgba(0,174,255,0.25);
+        }
+
+        /* MAIN */
+        .main{
+            margin-left:270px;
+            width:calc(100% - 270px);
+            padding:35px;
+        }
+
+        /* HEADER */
+        .header{
             display:flex;
             justify-content:space-between;
             align-items:center;
-            padding:60px;
-            gap:40px;
-            flex-wrap:wrap;
+            margin-bottom:35px;
         }
 
-        .hero-left{
-            flex:1;
-            min-width:300px;
+        .header-left h2{
+            font-size:48px;
+            font-weight:800;
+            margin-bottom:10px;
         }
 
-        .hero-left h2{
-            font-size:70px;
-            color:#0f172a;
-            margin-bottom:20px;
+        .header-left p{
+            color:#94a3b8;
+            font-size:18px;
         }
 
-        .hero-left p{
-            font-size:24px;
-            color:#475569;
-            line-height:1.6;
+        .status-box{
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.08);
+            padding:18px 26px;
+            border-radius:20px;
+            font-size:17px;
+            backdrop-filter:blur(10px);
+        }
+
+        .online{
+            color:#00ff88;
+            font-weight:700;
+        }
+
+        /* METRIC CARDS */
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+            gap:24px;
             margin-bottom:30px;
         }
 
-        .hero-left button{
-            background:#22c55e;
-            color:white;
-            border:none;
-            padding:18px 30px;
-            border-radius:12px;
-            font-size:20px;
-            cursor:pointer;
+        .card{
+            background:linear-gradient(145deg,#101b35,#0b1325);
+            border-radius:28px;
+            padding:28px;
+            position:relative;
+            overflow:hidden;
+            border:1px solid rgba(255,255,255,0.06);
+            box-shadow:
+            0 20px 40px rgba(0,0,0,0.35),
+            inset 0 1px 0 rgba(255,255,255,0.03);
+            transition:0.4s;
         }
 
-        .hero-left button:hover{
-            background:#16a34a;
+        .card:hover{
+            transform:translateY(-6px);
         }
 
-        .status-card{
-            background:#0f172a;
-            color:white;
-            width:420px;
-            padding:35px;
-            border-radius:20px;
-            box-shadow:0 10px 20px rgba(0,0,0,0.2);
+        .card::before{
+            content:'';
+            position:absolute;
+            width:180px;
+            height:180px;
+            background:rgba(0,174,255,0.09);
+            border-radius:50%;
+            top:-70px;
+            right:-50px;
         }
 
-        .status-card h3{
-            font-size:42px;
-            margin-bottom:25px;
+        .card-title{
+            color:#94a3b8;
+            font-size:18px;
+            margin-bottom:22px;
         }
 
-        .status-item{
-            font-size:28px;
-            margin-bottom:20px;
+        .card-value{
+            font-size:56px;
+            font-weight:800;
+            margin-bottom:16px;
         }
 
-        .healthy{
-            background:#22c55e;
-            display:inline-block;
-            padding:12px 25px;
-            border-radius:20px;
-            font-size:20px;
-            margin-top:15px;
+        .blue{color:#37b6ff;}
+        .green{color:#00e676;}
+        .orange{color:#ffb020;}
+        .red{color:#ff5e7d;}
+
+        .progress{
+            width:100%;
+            height:12px;
+            background:rgba(255,255,255,0.08);
+            border-radius:30px;
+            overflow:hidden;
         }
 
-        .stats{
-            display:flex;
-            justify-content:center;
-            gap:30px;
-            padding:40px;
-            flex-wrap:wrap;
+        .progress-bar{
+            height:100%;
+            border-radius:30px;
         }
 
-        .stat-box{
-            background:white;
-            width:320px;
-            padding:40px;
-            border-radius:20px;
-            text-align:center;
-            box-shadow:0 5px 20px rgba(0,0,0,0.1);
+        .blue-bg{
+            background:linear-gradient(90deg,#4facfe,#00f2fe);
         }
 
-        .stat-box h4{
-            font-size:30px;
-            color:#64748b;
-            margin-bottom:20px;
+        .orange-bg{
+            background:linear-gradient(90deg,#ff9f43,#ff6b6b);
         }
 
-        .stat-box p{
-            font-size:60px;
-            color:#2563eb;
-            font-weight:bold;
+        /* GRID */
+        .grid{
+            display:grid;
+            grid-template-columns:2fr 1fr;
+            gap:24px;
+            margin-bottom:24px;
         }
 
-        .incidents{
-            padding:50px;
+        .panel{
+            background:linear-gradient(145deg,#0d1830,#0a1224);
+            border-radius:30px;
+            padding:28px;
+            border:1px solid rgba(255,255,255,0.05);
+            box-shadow:0 20px 40px rgba(0,0,0,0.3);
         }
 
-        .incidents h2{
-            font-size:45px;
-            margin-bottom:25px;
-            color:#0f172a;
+        .panel h3{
+            font-size:34px;
+            margin-bottom:28px;
+            color:#35b7ff;
         }
 
+        /* TABLE */
         table{
             width:100%;
             border-collapse:collapse;
-            background:white;
-            border-radius:15px;
-            overflow:hidden;
-            box-shadow:0 5px 20px rgba(0,0,0,0.1);
         }
 
-        table th{
-            background:#2563eb;
-            color:white;
-            padding:18px;
+        th{
             text-align:left;
+            padding-bottom:18px;
+            color:#93a4bb;
+            font-size:17px;
+        }
+
+        td{
+            padding:22px 0;
+            border-top:1px solid rgba(255,255,255,0.06);
+            font-size:18px;
+        }
+
+        .status-running{
+            color:#00ff88;
+            font-weight:600;
+        }
+
+        /* ACTIVITY */
+        .activity{
+            display:flex;
+            flex-direction:column;
+            gap:18px;
+        }
+
+        .activity-card{
+            background:rgba(255,255,255,0.05);
+            padding:20px;
+            border-radius:18px;
+            transition:0.3s;
+            border:1px solid rgba(255,255,255,0.04);
+        }
+
+        .activity-card:hover{
+            transform:translateY(-3px);
+            background:rgba(255,255,255,0.08);
+        }
+
+        .activity-title{
             font-size:20px;
+            margin-bottom:8px;
         }
 
-        table td{
-            padding:18px;
-            border-bottom:1px solid #ddd;
-            font-size:18px;
+        .activity-time{
+            color:#94a3b8;
         }
 
-        .footer{
-            background:#0f172a;
-            color:white;
-            text-align:center;
-            padding:25px;
-            margin-top:50px;
-            font-size:18px;
+        /* CHARTS */
+        .charts{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:24px;
+        }
+
+        .chart-box{
+            background:linear-gradient(145deg,#0d1830,#0a1224);
+            border-radius:30px;
+            padding:28px;
+            border:1px solid rgba(255,255,255,0.05);
+        }
+
+        .chart-box h3{
+            margin-bottom:25px;
+            color:#35b7ff;
+            font-size:28px;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:1200px){
+
+            .grid{
+                grid-template-columns:1fr;
+            }
+
+            .charts{
+                grid-template-columns:1fr;
+            }
         }
 
         @media(max-width:900px){
 
-            .hero{
-                flex-direction:column;
+            .sidebar{
+                display:none;
             }
 
-            .hero-left h2{
-                font-size:50px;
-            }
-
-            .status-card{
+            .main{
+                margin-left:0;
                 width:100%;
+                padding:20px;
             }
 
+            .header{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:20px;
+            }
+
+            .header-left h2{
+                font-size:38px;
+            }
         }
-
     </style>
-
 </head>
 
 <body>
 
-<nav>
+<div class="container">
 
-    <h1>AutoPilot SRE</h1>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
 
-    <ul>
-        <li><button onclick="showDashboard()">Dashboard</button></li>
-        <li><button onclick="showIncidents()">Incidents</button></li>
-        <li><button onclick="showMetrics()">Metrics</button></li>
-        <li><button onclick="logout()">Logout</button></li>
-    </ul>
-
-</nav>
-
-<section class="hero">
-
-    <div class="hero-left">
-
-        <h2>
-            AI Powered Self-Healing Cloud Infrastructure
-        </h2>
-
-        <p>
-            Monitor incidents, analyze cloud metrics,
-            automate recovery and manage DevOps
-            infrastructure intelligently using AutoPilot SRE.
-        </p>
-
-        <button onclick="createIncident()">
-            Create Incident
-        </button>
-
-    </div>
-
-    <div class="status-card">
-
-        <h3>System Status</h3>
-
-        <div class="status-item">
-            CPU Usage :
-            <span id="cpu">Loading...</span>
+        <div class="logo">
+            <div class="logo-icon">🚀</div>
+            <h1>AutoPilot</h1>
         </div>
 
-        <div class="status-item">
-            Memory Usage :
-            <span id="memory">Loading...</span>
-        </div>
-
-        <div class="status-item">
-            Pods Running :
-            <span id="pods">Loading...</span>
-        </div>
-
-        <div class="healthy">
-            Healthy
+        <div class="menu">
+            <div class="menu-item active">📊 Dashboard</div>
+            <div class="menu-item">☁ Kubernetes</div>
+            <div class="menu-item">📈 Monitoring</div>
+            <div class="menu-item">⚡ Autoscaling</div>
+            <div class="menu-item">🗄 Database</div>
+            <div class="menu-item">🔐 Security</div>
+            <div class="menu-item">⚙ Settings</div>
         </div>
 
     </div>
 
-</section>
+    <!-- MAIN -->
+    <div class="main">
 
-<section class="stats">
+        <!-- HEADER -->
+        <div class="header">
 
-    <div class="stat-box">
-        <h4>Total Incidents</h4>
-        <p id="total">24</p>
+            <div class="header-left">
+                <h2>Cloud Incident AutoPilot</h2>
+                <p>Enterprise SRE Monitoring & Incident Response Platform</p>
+            </div>
+
+            <div class="status-box">
+                System Status : <span class="online">ONLINE</span>
+            </div>
+
+        </div>
+
+        <!-- METRIC CARDS -->
+        <div class="cards">
+
+            <div class="card">
+                <div class="card-title">CPU Usage</div>
+                <div class="card-value blue" id="cpuValue">0%</div>
+
+                <div class="progress">
+                    <div class="progress-bar blue-bg" id="cpuBar" style="width:0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Memory Usage</div>
+                <div class="card-value orange" id="memoryValue">0 MB</div>
+
+                <div class="progress">
+                    <div class="progress-bar orange-bg" id="memoryBar" style="width:0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Kubernetes Pods</div>
+                <div class="card-value green" id="podValue">0</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Requests / Minute</div>
+                <div class="card-value red" id="requestValue">0</div>
+            </div>
+
+        </div>
+
+        <!-- GRID -->
+        <div class="grid">
+
+            <!-- TABLE -->
+            <div class="panel">
+
+                <h3>Infrastructure Metrics</h3>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Latency</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td>Spring Boot API</td>
+                        <td class="status-running">Running</td>
+                        <td>24ms</td>
+                    </tr>
+
+                    <tr>
+                        <td>MySQL Database</td>
+                        <td class="status-running">Healthy</td>
+                        <td>12ms</td>
+                    </tr>
+
+                    <tr>
+                        <td>Prometheus</td>
+                        <td class="status-running">Active</td>
+                        <td>18ms</td>
+                    </tr>
+
+                    <tr>
+                        <td>Kubernetes HPA</td>
+                        <td class="status-running">Scaling</td>
+                        <td>9ms</td>
+                    </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- ACTIVITY -->
+            <div class="panel">
+
+                <h3>Recent Activity</h3>
+
+                <div class="activity" id="activityContainer">
+
+                    <div class="activity-card">
+                        <div class="activity-title">CPU spike detected</div>
+                        <div class="activity-time">2 mins ago</div>
+                    </div>
+
+                    <div class="activity-card">
+                        <div class="activity-title">Auto scaling triggered</div>
+                        <div class="activity-time">5 mins ago</div>
+                    </div>
+
+                    <div class="activity-card">
+                        <div class="activity-title">New pod created</div>
+                        <div class="activity-time">7 mins ago</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CHARTS -->
+        <div class="charts">
+
+            <div class="chart-box">
+                <h3>CPU Analytics</h3>
+                <canvas id="cpuChart"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h3>Memory Analytics</h3>
+                <canvas id="memoryChart"></canvas>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="stat-box">
-        <h4>Resolved</h4>
-        <p id="resolved">19</p>
-    </div>
-
-    <div class="stat-box">
-        <h4>Critical Alerts</h4>
-        <p id="critical">3</p>
-    </div>
-
-</section>
-
-<section class="incidents">
-
-    <h2>Recent Incidents</h2>
-
-    <table>
-
-        <thead>
-
-        <tr>
-            <th>ID</th>
-            <th>Service</th>
-            <th>Severity</th>
-            <th>Status</th>
-        </tr>
-
-        </thead>
-
-        <tbody id="incidentTable">
-
-        </tbody>
-
-    </table>
-
-</section>
-
-<div class="footer">
-    AutoPilot SRE © 2026 | AI Powered DevOps Monitoring Platform
 </div>
 
 <script>
 
-    const incidents = [
+    const BACKEND_URL = "http://localhost:8080";
 
-        {
-            id:1,
-            service:'Kubernetes Cluster',
-            severity:'High',
-            status:'Investigating'
+    // CPU CHART
+    const cpuChart = new Chart(
+    document.getElementById('cpuChart'),
+    {
+        type:'line',
+        data:{
+            labels:[],
+            datasets:[{
+                label:'CPU %',
+                data:[],
+                borderColor:'#37b6ff',
+                backgroundColor:'rgba(55,182,255,0.15)',
+                borderWidth:4,
+                tension:0.4,
+                fill:true
+            }]
         },
-
-        {
-            id:2,
-            service:'API Gateway',
-            severity:'Critical',
-            status:'Resolved'
-        },
-
-        {
-            id:3,
-            service:'Database Server',
-            severity:'Medium',
-            status:'Monitoring'
-        },
-
-        {
-            id:4,
-            service:'Authentication Service',
-            severity:'Low',
-            status:'Resolved'
+        options:{
+            responsive:true,
+            plugins:{
+                legend:{
+                    labels:{
+                        color:'white'
+                    }
+                }
+            },
+            scales:{
+                x:{
+                    ticks:{color:'#94a3b8'},
+                    grid:{color:'rgba(255,255,255,0.05)'}
+                },
+                y:{
+                    ticks:{color:'#94a3b8'},
+                    grid:{color:'rgba(255,255,255,0.05)'}
+                }
+            }
         }
-
-    ];
-
-    const table = document.getElementById('incidentTable');
-
-    incidents.forEach((incident)=>{
-
-        const row = document.createElement('tr');
-
-        row.innerHTML = `
-            <td>${incident.id}</td>
-            <td>${incident.service}</td>
-            <td>${incident.severity}</td>
-            <td>${incident.status}</td>
-        `;
-
-        table.appendChild(row);
-
     });
 
-    function createIncident(){
+    // MEMORY CHART
+    const memoryChart = new Chart(
+    document.getElementById('memoryChart'),
+    {
+        type:'line',
+        data:{
+            labels:[],
+            datasets:[{
+                label:'Memory MB',
+                data:[],
+                borderColor:'#ffb020',
+                backgroundColor:'rgba(255,176,32,0.12)',
+                borderWidth:4,
+                tension:0.4,
+                fill:true
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{
+                legend:{
+                    labels:{
+                        color:'white'
+                    }
+                }
+            },
+            scales:{
+                x:{
+                    ticks:{color:'#94a3b8'},
+                    grid:{color:'rgba(255,255,255,0.05)'}
+                },
+                y:{
+                    ticks:{color:'#94a3b8'},
+                    grid:{color:'rgba(255,255,255,0.05)'}
+                }
+            }
+        }
+    });
 
-        alert('Incident Created Successfully 🚀');
+    // ADD CHART DATA
+    function addChartData(chart,label,data){
 
-    }
-
-    function logout(){
-
-        alert('Logged Out Successfully');
-
-        window.location.reload();
-
-    }
-
-    function showDashboard(){
-
-        window.scrollTo({
-            top:0,
-            behavior:'smooth'
-        });
-
-    }
-
-    function showIncidents(){
-
-        document.querySelector('.incidents')
-        .scrollIntoView({
-            behavior:'smooth'
-        });
-
-    }
-
-    function showMetrics(){
-
-        document.querySelector('.status-card')
-        .scrollIntoView({
-            behavior:'smooth'
-        });
-
-    }
-
-    async function loadMetrics(){
-
-        try{
-
-            const response = await fetch(
-                "http://localhost:9091/api/metrics/system?instanceId=i-0103e5e46048e5721"
-            );
-
-            const data = await response.json();
-
-            document.getElementById('cpu').innerText =
-                data.cpuUsage.toFixed(2) + '%';
-
-            // Demo values for now
-            document.getElementById('memory').innerText =
-                Math.floor(Math.random()*100) + '%';
-
-            document.getElementById('pods').innerText =
-                Math.floor(Math.random()*20);
-
+        if(chart.data.labels.length > 10){
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
         }
 
-        catch(error){
+        chart.data.labels.push(label);
+        chart.data.datasets[0].data.push(data);
 
-            console.log(error);
-
-            document.getElementById('cpu').innerText =
-                'Backend Offline';
-
-        }
-
+        chart.update();
     }
 
-    loadMetrics();
+    // FETCH METRICS
+    async function fetchMetrics() {
 
-    setInterval(loadMetrics,5000);
+    try {
+
+        const response = await fetch(
+            "http://localhost:8080/actuator/prometheus"
+        );
+
+        const text = await response.text();
+
+        // CPU
+        const cpuMatch = text.match(
+            /process_cpu_usage\s+([0-9.]+)/
+        );
+
+        // MEMORY
+        const memoryMatch = text.match(
+            /jvm_memory_used_bytes\{area="heap",id="Tenured Gen"\}\s+([0-9.E+]+)/
+        );
+
+        // REQUESTS
+        const requestMatch = text.match(
+            /http_server_requests_seconds_count\{.*\}\s+([0-9.]+)/
+        );
+
+        // JVM THREADS
+        const threadMatch = text.match(
+            /jvm_threads_live_threads\s+([0-9.]+)/
+        );
+
+        // ACTIVE DB CONNECTIONS
+        const dbMatch = text.match(
+            /hikaricp_connections_active\{pool="HikariPool-1"\}\s+([0-9.]+)/
+        );
+
+        // SYSTEM LOAD
+        const loadMatch = text.match(
+            /system_load_average_1m\s+([0-9.]+)/
+        );
+
+        let cpu = cpuMatch
+            ? Math.round(parseFloat(cpuMatch[1]) * 100)
+            : 0;
+
+        let memory = memoryMatch
+            ? Math.round(
+                parseFloat(memoryMatch[1]) / 1024 / 1024
+            )
+            : 0;
+
+        let requests = requestMatch
+            ? parseInt(requestMatch[1])
+            : 0;
+
+        let threads = threadMatch
+            ? parseInt(threadMatch[1])
+            : 0;
+
+        let dbConnections = dbMatch
+            ? parseInt(dbMatch[1])
+            : 0;
+
+        let systemLoad = loadMatch
+            ? parseFloat(loadMatch[1]).toFixed(2)
+            : 0;
+
+        // UPDATE UI
+
+        document.getElementById("cpuValue").innerText =
+            cpu + "%";
+
+        document.getElementById("memoryValue").innerText =
+            memory + " MB";
+
+        document.getElementById("requestValue").innerText =
+            requests;
+
+        document.getElementById("podValue").innerText =
+            threads;
+
+        // PROGRESS BARS
+
+        document.getElementById("cpuBar").style.width =
+            cpu + "%";
+
+        document.getElementById("memoryBar").style.width =
+            Math.min(memory / 20, 100) + "%";
+
+        // LIVE ACTIVITY
+
+        document.getElementById("activityContainer").innerHTML = `
+            <div class="activity-item">
+                CPU Usage Updated — ${cpu}%
+            </div>
+
+            <div class="activity-item">
+                Memory Consumption — ${memory} MB
+            </div>
+
+            <div class="activity-item">
+                Active Threads — ${threads}
+            </div>
+
+            <div class="activity-item">
+                DB Connections — ${dbConnections}
+            </div>
+
+            <div class="activity-item">
+                System Load — ${systemLoad}
+            </div>
+        `;
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("activityContainer").innerHTML = `
+            <div class="activity-item">
+                Backend Connection Failed
+            </div>
+        `;
+    }
+}
+
+fetchMetrics();
+
+setInterval(fetchMetrics, 5000);
+
+    fetchMetrics();
+
+    setInterval(fetchMetrics,5000);
 
 </script>
 
