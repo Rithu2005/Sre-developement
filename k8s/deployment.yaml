@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: autopilot-backend
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: autopilot-backend
+
+  template:
+    metadata:
+      labels:
+        app: autopilot-backend
+
+    spec:
+      containers:
+        - name: backend
+          image: autopilot-sre-backend
+
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8080
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://host.minikube.internal:3307/autopilotdb
+
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
